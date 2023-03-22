@@ -1,0 +1,57 @@
+#!/bin/bash
+
+# Prompt the user before making any major changes to the system
+read -p "Do you want to check for updates, clean the package cache, and remove unnecessary packages? (y/n) " -n 1 -r
+echo ""
+if [[ $REPLY =~ ^[Yy]$ ]]
+then
+  # Update system packages
+  echo "Updating system packages..."
+  sudo dnf update
+
+  # Upgrade system packages, including the kernel
+  read -p "Do you want to upgrade your system packages, including the kernel? (y/n) " -n 1 -r
+  echo ""
+  if [[ $REPLY =~ ^[Yy]$ ]]
+  then
+    echo "Upgrading system packages, including the kernel..."
+    sudo dnf upgrade
+  fi
+
+  # Remove orphaned packages
+  echo "Removing orphaned packages..."
+  sudo dnf autoremove
+
+  # Clean package cache
+  echo "Cleaning package cache..."
+  sudo dnf clean all
+fi
+
+# Check for available updates
+echo "Checking for available updates..."
+sudo dnf check-update
+
+# Display system resource usage
+echo "Displaying system resource usage..."
+htop
+
+# Display boot time and identify slow services
+echo "Displaying boot time and identifying slow services..."
+systemd-analyze blame
+
+# Display system logs
+echo "Displaying system logs..."
+journalctl
+
+# Prompt the user before removing a package
+read -p "Do you want to remove a package? (y/n) " -n 1 -r
+echo ""
+if [[ $REPLY =~ ^[Yy]$ ]]
+then
+  # Remove a package
+  read -p "Enter the name of the package you want to remove: " package_name
+  echo "Removing package $package_name..."
+  sudo dnf remove $package_name
+fi
+
+echo "Script execution complete."
